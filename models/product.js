@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const Cart = require("./cart");
 
 // BETTER TO USE CALLBACKS TO AVOID THIS FROM LOSING CONTEXT
 const p = path.join(
@@ -57,12 +58,13 @@ module.exports = class Product {
       cb(product);
     });
   }
-  static deleteById(productId) {
-    getProductsFromFile((products) => {
-      const updatedProducts = products.filter((prod) => prod.id !== productId);
-      fs.writeFile(p, JSON.stringify(updatedProducts), (err) => {
+  static deleteById(id) {
+    getProductsFromFile(products => {
+      const product = products.find(prod => prod.id === id);
+      const updatedProducts = products.filter(prod => prod.id !== id);
+      fs.writeFile(p, JSON.stringify(updatedProducts), err => {
         if (!err) {
-          // DELETE RELATED CART ITEMS
+          Cart.deleteProduct(id, product.price);
         }
       });
     });
